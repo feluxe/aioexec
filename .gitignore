@@ -1,0 +1,23 @@
+### Misc. ###
+INFO.fmw.md
+.cache/
+**/tmp/*
+
+### Python ###
+__pycache__/
+.env
+*.pyc
+
+### Wheels ###
+/build/
+dist/
+aioexec.egg-info/
+
+# Editors
+*.iml
+.idea
+.vscode
+.history
+.swp
+
+
