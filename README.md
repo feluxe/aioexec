@@ -23,7 +23,7 @@ or
 
 ## Usage
 
-With asyncio you usually run an executor something like this:
+Without aioexec you usually run an executor something like this:
 
 ```python
 import aysncio
