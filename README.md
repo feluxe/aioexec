@@ -35,7 +35,7 @@ loop = asyncio.get_event_loop()
 
 foo = await loop.run_in_executor(
     ProcessPoolExecutor(1), lambda: my_func(foo='baz')
-    )
+)
 ```
 
 With aioexec you would do the same like this:
