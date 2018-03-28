@@ -51,7 +51,7 @@ from aioexec import Procs
 foo = await Procs(1).call(my_func, foo='baz') 
 ```
 
-You can also call a batch of functions in an executor like this:
+You can call a batch of functions in the same executor like this:
 
 ```python
 import asyncio as aio
@@ -74,7 +74,7 @@ my_values = await aio.gather(
     )
 ```
 
-It works the same Threads:
+It works the same for Threads:
 
 ```python
 import asyncio as aio
