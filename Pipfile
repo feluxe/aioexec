@@ -10,9 +10,9 @@ name = "pypi"
 wheel = "*"
 pytest = "*"
 docopt = "*"
-buildlib = "*"
 pylint = "*"
 yapf = "*"
+buildlib = "==0.2"
 
 [requires]
 python_version = "3.6"

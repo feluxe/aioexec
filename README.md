@@ -14,9 +14,7 @@ With asyncio you usually run an executor something like this:
 import aysncio
 from concurrent.futures import ProcessPoolExecutor
 
-def my_func(foo='bar'):
-    print('I will run in a seperate Process: ' + foo)
-    return foo
+# ...
 
 loop = asyncio.get_event_loop()
 
@@ -31,9 +29,7 @@ With aioexec you would do the same like this:
 import aysncio
 from aioexec import Procs
 
-def my_func(foo='bar'):
-    print('I will run in a seperate Process: ' + foo)
-    return foo
+# ...
 
 foo = await Procs(5).call(my_func, foo='baz') 
 ```
