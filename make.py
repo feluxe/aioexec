@@ -48,17 +48,12 @@ def bump(cfg: Cfg):
         cfg.version = result.val
         results.append(result)
 
-    if wheel.prompt.should_build():
-        results.append(build(cfg))
-
     if wheel.prompt.should_push('PYPI'):
         results.append(deploy(cfg))
 
     new_release = cfg.version != proj['version']
-    default = 'y' if new_release else 'n'
 
-    if git.prompt.should_run_git(default):
-        results.extend(git.seq.bump_git(cfg.version, new_release))
+    results.extend(git.seq.bump_git(cfg.version, new_release))
 
     return results
 
