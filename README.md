@@ -1,8 +1,6 @@
 
 # aioexec
 
-aynscio exectuors as simple as it can get.
-
 
 ## Description
 
