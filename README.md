@@ -90,5 +90,11 @@ foo = await Procs(1, my_loop).call(my_func, foo='baz')
 ```
 
 
+## Development
+
+Just clone the repo and run:
+
+    pipenv install --dev
+
 
 
