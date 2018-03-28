@@ -1,6 +1,5 @@
 """
 """
-from itertools import chain
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from typing import Optional, Pattern, List, NamedTuple, Callable, Awaitable, Iterable, Generator
