@@ -63,11 +63,6 @@ my_values = await asyncio.gather(
 This plays nicely with comprehensions:
 
 ```python
-import asyncio
-from aioexec import Procs, Call
-
-# ...
-
 my_values = await asyncio.gather(
     *Procs(10).batch(
         Call(my_func, foo=i) for i in range(0, 10)
@@ -78,11 +73,6 @@ my_values = await asyncio.gather(
 You can also spawn a `pool` and make multiple different calls with the same executor:
 
 ```python
-import asyncio
-from aioexec import Procs, Call
-
-# ...
-
 with Procs(10) as pool:
 
     value_a = await pool.call(my_func, foo='baz')
