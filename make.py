@@ -3,7 +3,7 @@ Install:
   pipenv install --dev
 
 Usage:
-  make.py <command> [options]
+  make.py [<command>] [options]
   make.py -h | --help
 
 Commands:
@@ -80,7 +80,10 @@ def run():
     elif args["<command>"] == 'bump':
         results.extend(bump(cfg))
 
-    print_summary(results)
+    if not args["<command>"]:
+        print(__doc__)
+    else:
+        print_summary(results)
 
 
 if __name__ == '__main__':
