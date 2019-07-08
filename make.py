@@ -34,7 +34,12 @@ def build(cfg: Cfg):
 
 
 def deploy(cfg: Cfg):
-    return wheel.cmd.push(clean_dir=True, repository=cfg.registry)
+    # return wheel.cmd.push(clean_dir=True, repository=cfg.registry)
+    # TODO: Replace with buildlib.wheel.push()
+    sp.run(
+        ['twine', 'upload', '-r', cfg.registry, 'dist/*'],
+        check=True,
+    )
 
 
 def test(cfg: Cfg):
@@ -50,7 +55,11 @@ def bump(cfg: Cfg):
         results.append(result)
 
     if wheel.prompt.should_push('PYPI'):
-        results.append(deploy(cfg))
+        # TODO: Replace with buildlib.wheel.push()
+        sp.run(
+            ['twine', 'upload', '-r', cfg.registry, 'dist/*'],
+            check=True,
+        )
 
     new_release = cfg.version != proj['version']
 

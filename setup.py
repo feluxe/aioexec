@@ -14,6 +14,8 @@ def load_yaml(file: str, keep_order: bool = False) -> dict:
 with open('README.md') as f:
     long_description = f.read()
 
+print(long_description)
+
 config = load_yaml('Project')
 
 setup(
@@ -26,6 +28,7 @@ setup(
     url=config['url'],
     description=config['description'],
     long_description=long_description,
+    long_description_content_type="text/markdown",
     download_url=config['url'] + '/tarball/' + config['version'],
     license=config['license'],
     keywords=config['keywords'],
