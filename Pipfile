@@ -8,11 +8,12 @@ name = "pypi"
 [dev-packages]
 "ruamel.yaml" = "*"
 wheel = "*"
-pytest = "*"
 docopt = "*"
 pylint = "*"
 yapf = "*"
+mypy = "*"
 buildlib = "==2.1.12"
+setuptools = "*"
 
 [requires]
 python_version = "3.6"

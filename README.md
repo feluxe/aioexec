@@ -1,16 +1,12 @@
-
 # aioexec
-
 
 ## Description
 
-Aioexec is a simple, intuitive interface around the `concurrent.futures` package and asyncio's `loop.run_in_executor` method. Aioexec is leightweight, no dependencies and ~70 LOC.
-
+Aioexec is a simple, intuitive interface around the `concurrent.futures` package and asyncio's `loop.run_in_executor` method. Aioexec is leightweight, no dependencies and ~100 LOC.
 
 ## Requirements
 
 aioexec requires Python `>= 3.6`
-
 
 ## Install
 
@@ -20,10 +16,9 @@ or
 
     pipenv install aioexec
 
-
 ## Usage
 
-Without aioexec you usually run an executor something like this:
+**Without** `aioexec` you usually run an executor something like this:
 
 ```python
 import aysncio
@@ -38,63 +33,93 @@ foo = await loop.run_in_executor(
 )
 ```
 
-With aioexec you would do the same like this:
+**With** `aioexec` you would do the same like this:
 
 ```python
-import aysncio
 from aioexec import Procs
 
 # ...
 
-foo = await Procs(1).call(my_func, foo='baz') 
+foo = await Procs(1).call(my_func, foo='baz')
 ```
 
-You can call a batch of functions in the same executor like this:
+You can call a `batch` of functions in the same executor like this:
 
 ```python
-import asyncio as aio
+import asyncio
 from aioexec import Procs, Call
 
-my_values = await aio.gather(
+# ...
+
+my_values = await asyncio.gather(
     *Procs(3).batch(
-        Call(my_func, foo='1'),
-        Call(my_func, foo='2'),
-        Call(my_func, foo='3'),
+        Call(my_func, foo='bar'),
+        Call(my_func, foo='baz'),
+        Call(my_func, foo='qux'),
     )
+)
 ```
 
 This plays nicely with comprehensions:
 
 ```python
-my_values = await aio.gather(
+import asyncio
+from aioexec import Procs, Call
+
+# ...
+
+my_values = await asyncio.gather(
     *Procs(10).batch(
         Call(my_func, foo=i) for i in range(0, 10)
     )
+)
 ```
 
-It works the same for Threads:
+You can also spawn a `pool` and make multiple different calls with the same executor:
 
 ```python
-import asyncio as aio
+import asyncio
+from aioexec import Procs, Call
+
+# ...
+
+with Procs(10) as pool:
+
+    value_a = await pool.call(my_func, foo='baz')
+
+    value_b = await aio.gather(
+        *pool.batch(
+            Call(my_func, foo=i) for i in range(0, 10)
+        )
+    )
+
+    # etc...
+```
+
+The examples from above work the same for `Threads`, e.g.:
+
+```python
 from aioexec import Threads
 
-foo = await Threads(1).call(my_func, foo='baz') 
+# ...
+
+foo = await Threads(1).call(my_func, foo='baz')
 
 ```
 
-If necessary, you can pass an event loop to the executors like this:
+If necessary, you can pass an event `loop` to the executors like this:
 
 ```python
-foo = await Threads(1, my_loop).call(my_func, foo='baz') 
-foo = await Procs(1, my_loop).call(my_func, foo='baz') 
+foo = await Threads(1, my_loop).call(my_func, foo='baz')
+foo = await Procs(1, my_loop).call(my_func, foo='baz')
 ```
 
+## Development / Testing
 
-## Development
-
-Just clone the repo and run:
+Clone the repo and install dev packages:
 
     pipenv install --dev
 
+Run tests:
 
-
+    pipenv run python make.py test
