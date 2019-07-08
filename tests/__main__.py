@@ -1,3 +1,4 @@
+
 from time import time
 from typing import NamedTuple
 from itertools import repeat, chain
@@ -23,7 +24,7 @@ def findmatches(start, end, num):
     return matches
 
 
-async def run(s: Conf):
+async def run_async(s: Conf):
 
     chunk_len = s.limit // s.chunk_amount
 
@@ -42,7 +43,7 @@ async def run(s: Conf):
     return list(chain.from_iterable(results))
 
 
-if __name__ == '__main__':
+def run():
 
     s = Conf(
         workers=6,
@@ -55,9 +56,13 @@ if __name__ == '__main__':
     start = time()
 
     loop = aio.get_event_loop()
-    matches = loop.run_until_complete(run(s))
+    matches = loop.run_until_complete(run_async(s))
 
     end = time() - start
 
     print(f'limit={s.limit}, workers={s.workers}')
     print(f"found {len(matches)} in {end} sec")
+
+
+if __name__ == '__main__':
+    run()

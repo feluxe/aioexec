@@ -11,16 +11,3 @@
 "keywords": []
 "interpreter": "python3.6"
 "registry": "pypi"
-"pypi":
-  "install_requires": []
-  "tests_require": []
-  "packages": ["aioexec"]
-  "package_dir": {"aioexec": "aioexec"}
-  "package_data": {}
-  "py_modules": []
-  "data_files": []
-  "classifiers": []
-  "platforms": ""
-  "entry_points": {"console_scripts": []
-, "gui_scripts": []
-}

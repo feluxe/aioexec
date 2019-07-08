@@ -12,7 +12,10 @@ pytest = "*"
 docopt = "*"
 pylint = "*"
 yapf = "*"
-buildlib = "==0.2"
+buildlib = "==2.1.12"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

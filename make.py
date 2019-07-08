@@ -1,24 +1,25 @@
+"""
+Install:
+  pipenv install --dev
+
+Usage:
+  make.py <command> [options]
+  make.py -h | --help
+
+Commands:
+  build       Create wheel.
+  deploy      Publish on pypi.
+  test        Run tests.
+  bump        Run interactive deployment sequence.
+  git         Run interactive git sequence.
+
+Options:
+  -h, --help  Show this screen.
+"""
 import subprocess as sp
 from cmdi import print_summary
 from buildlib import buildmisc, git, wheel, project, yaml
 from docopt import docopt
-
-interface = """
-    Install:
-        pipenv install
-        pipenv run python make.py
-
-    Usage:
-        make.py build [options]
-        make.py deploy [options]
-        make.py test [options]
-        make.py bump [options]
-        make.py git [options]
-        make.py -h | --help
-
-    Options:
-    -h, --help               Show this screen.
-"""
 
 proj = yaml.loadfile('Project')
 
@@ -37,7 +38,7 @@ def deploy(cfg: Cfg):
 
 
 def test(cfg: Cfg):
-    print('No tests available.')
+    sp.run(['python', '-m', 'tests'])
 
 
 def bump(cfg: Cfg):
@@ -61,22 +62,22 @@ def bump(cfg: Cfg):
 def run():
 
     cfg = Cfg()
-    uinput = docopt(interface)
+    args = docopt(__doc__)
     results = []
 
-    if uinput['build']:
+    if args["<command>"] == 'build':
         results.append(build(cfg))
 
-    if uinput['deploy']:
+    elif args["<command>"] == 'deploy':
         results.append(deploy(cfg))
 
-    if uinput['test']:
+    elif args["<command>"] == 'test':
         test(cfg)
 
-    if uinput['git']:
+    elif args["<command>"] == 'git':
         results.append(git.seq.bump_git(cfg.version, new_release=False))
 
-    if uinput['bump']:
+    elif args["<command>"] == 'bump':
         results.extend(bump(cfg))
 
     print_summary(results)

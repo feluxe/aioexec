@@ -3,13 +3,7 @@ from codecs import open
 import ruamel.yaml as yaml
 
 
-def load_yaml(
-    file: str,
-    keep_order: bool = False
-) -> dict:
-    """
-    Load yaml file.
-    """
+def load_yaml(file: str, keep_order: bool = False) -> dict:
     with open(file, 'r') as stream:
         if keep_order:
             return yaml.load(stream.read(), Loader=yaml.RoundTripLoader)
@@ -35,15 +29,14 @@ setup(
     download_url=config['url'] + '/tarball/' + config['version'],
     license=config['license'],
     keywords=config['keywords'],
-
     include_package_data=True,
-    platforms=config['pypi']['platforms'],
-    classifiers=config['pypi']['classifiers'],
-    install_requires=config['pypi']['install_requires'],
+    platforms=[],
+    classifiers=[],
+    install_requires=[],
     packages=find_packages(where='.', exclude=('tests', 'tests.*')),
-    package_dir=config['pypi']['package_dir'],
-    package_data=config['pypi']['package_data'],
-    data_files=config['pypi']['data_files'],
-    entry_points=config['pypi']['entry_points'],
-    tests_require=config['pypi']['tests_require']
+    package_dir={"aioexec": "aioexec"},
+    package_data={},
+    data_files=[],
+    entry_points={"console_scripts": [], "gui_scripts": []},
+    tests_require=[],
 )
