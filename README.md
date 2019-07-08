@@ -70,7 +70,7 @@ my_values = await asyncio.gather(
 )
 ```
 
-You can also spawn a `pool` in context and make multiple different calls with the same executor:
+You can also spawn a `pool` in a context and make multiple different calls with the same executor:
 
 ```python
 with Procs(10) as pool:
