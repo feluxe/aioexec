@@ -18,6 +18,37 @@ class Call:
         self.kwargs = kwargs
 
 
+def _call_async(fn, args, kwargs):
+    new_loop = asyncio.new_event_loop()
+    try:
+        coro = fn(*args, **kwargs)
+        asyncio.set_event_loop(new_loop)
+        return new_loop.run_until_complete(coro)
+    finally:
+        new_loop.close()
+
+
+def _call(fn, args, kwargs, loop, pool):
+    if asyncio.iscoroutinefunction(fn):
+        return loop.run_in_executor(
+            pool, partial(_call_async, fn, args, kwargs)
+        )
+    else:
+        return loop.run_in_executor(pool, partial(fn, *args, **kwargs))
+
+
+def _batch_get_calls(raw_calls):
+
+    for call in raw_calls:
+
+        if isinstance(call, Call):
+            yield call
+
+        elif isinstance(call, (GeneratorType, list)):
+            for c in call:
+                yield c
+
+
 class ConcurrentBase:
 
     def __init__(
@@ -46,13 +77,9 @@ class ConcurrentBase:
 
         if not self.pool:
             with self.Executor(self.n) as pool:
-                return self.loop.run_in_executor(
-                    pool, partial(fn, *args, **kwargs)
-                )
+                return _call(fn, args, kwargs, self.loop, pool)
         else:
-            return self.loop.run_in_executor(
-                self.pool, partial(fn, *args, **kwargs)
-            )
+            return _call(fn, args, kwargs, self.loop, self.pool)
 
     def batch(
         self,
@@ -65,28 +92,12 @@ class ConcurrentBase:
         if not self.pool:
 
             with self.Executor(self.n) as pool:
+                for c in _batch_get_calls(calls):
+                    yield _call(c.fn, c.args, c.kwargs, self.loop, pool)
 
-                for c in calls:
-                    if isinstance(c, GeneratorType):
-                        for x in c:
-                            yield self.loop.run_in_executor(
-                                pool, partial(x.fn, *x.args, **x.kwargs)
-                            )
-                    elif isinstance(c, list):
-                        yield self.loop.run_in_executor(
-                            pool, partial(c.fn, *c.args, **c.kwargs)
-                        )
         else:
-            for c in calls:
-                if isinstance(c, GeneratorType):
-                    for x in c:
-                        yield self.loop.run_in_executor(
-                            self.pool, partial(x.fn, *x.args, **x.kwargs)
-                        )
-                elif isinstance(c, list):
-                    yield self.loop.run_in_executor(
-                        self.pool, partial(c.fn, *c.args, **c.kwargs)
-                    )
+            for c in _batch_get_calls(calls):
+                yield _call(c.fn, c.args, c.kwargs, self.loop, self.pool)
 
 
 class Threads(ConcurrentBase):

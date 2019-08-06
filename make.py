@@ -1,24 +1,23 @@
-"""
-Install:
-  pipenv install --dev
+"""Install:
+  pipenv install --dev --pre
 
 Usage:
   make.py [<command>] [options]
-  make.py -h | --help
 
 Commands:
-  build       Create wheel.
-  deploy      Publish on pypi.
-  test        Run tests.
-  bump        Run interactive deployment sequence.
-  git         Run interactive git sequence.
+  build    Build wheel.
+  push     Push wheel to pypi.
+  test     Run tests.
+  bump     Run interacitve bump sequence.
+  git      Run interactive git sequence.
 
 Options:
-  -h, --help  Show this screen.
+  -h, --help         Show this screen.
 """
 import subprocess as sp
 from cmdi import print_summary
 from buildlib import buildmisc, git, wheel, project, yaml
+import prmt
 from docopt import docopt
 
 proj = yaml.loadfile('Project')
@@ -30,16 +29,12 @@ class Cfg:
 
 
 def build(cfg: Cfg):
-    return wheel.cmd.build(clean_dir=True)
+    return wheel.cmd.build(cleanup=True)
 
 
-def deploy(cfg: Cfg):
-    # return wheel.cmd.push(clean_dir=True, repository=cfg.registry)
-    # TODO: Replace with buildlib.wheel.push()
-    sp.run(
-        ['twine', 'upload', '-r', cfg.registry, 'dist/*'],
-        check=True,
-    )
+def push(cfg: Cfg):
+    w = wheel.find_wheel('./dist', semver_num=cfg.version)
+    return wheel.cmd.push(wheel=f'./dist/{w}')
 
 
 def test(cfg: Cfg):
@@ -49,17 +44,16 @@ def test(cfg: Cfg):
 def bump(cfg: Cfg):
     results = []
 
-    if project.prompt.should_bump_version():
+    if prmt.confirm("BUMP VERSION number?", 'y'):
         result = project.cmd.bump_version()
         cfg.version = result.val
         results.append(result)
 
-    if wheel.prompt.should_push('PYPI'):
-        # TODO: Replace with buildlib.wheel.push()
-        sp.run(
-            ['twine', 'upload', '-r', cfg.registry, 'dist/*'],
-            check=True,
-        )
+    if prmt.confirm("BUILD wheel?", 'y'):
+        results.append(build(cfg))
+
+    if prmt.confirm("PUSH wheel to PYPI?", 'y'):
+        results.append(push(cfg))
 
     new_release = cfg.version != proj['version']
 
@@ -77,8 +71,8 @@ def run():
     if args["<command>"] == 'build':
         results.append(build(cfg))
 
-    elif args["<command>"] == 'deploy':
-        results.append(deploy(cfg))
+    elif args["<command>"] == 'push':
+        results.append(push(cfg))
 
     elif args["<command>"] == 'test':
         test(cfg)

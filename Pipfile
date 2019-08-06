@@ -12,11 +12,11 @@ docopt = "*"
 pylint = "*"
 yapf = "*"
 mypy = "*"
-buildlib = "==2.1.12"
+buildlib = "==2.3.5"
 setuptools = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
 
 [pipenv]
 allow_prereleases = true

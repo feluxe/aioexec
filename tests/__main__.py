@@ -1,4 +1,5 @@
-from time import time
+from time import time, sleep
+import random
 from typing import NamedTuple, Awaitable, Tuple, Union, Type, Iterator, List
 from itertools import repeat, chain
 import asyncio as aio
@@ -14,50 +15,94 @@ class Conf(NamedTuple):
     chunk_size: int
 
 
-def findmatches(start: int, end: int, num_to_find: str) -> List[int]:
-
-    matches = []
-
-    for n in range(start, end):
-        if num_to_find in str(n):
-            matches.append(n)
-
-    return matches
+def get_values_sync():
+    t = random.uniform(0.0001, 0.001)
+    sleep(t)
+    return [1, 2, 3]
 
 
-class Chunk(NamedTuple):
-    start: int
-    end: int
+async def get_values_async():
+    t = random.uniform(0.0001, 0.001)
+    await aio.sleep(t)
+    return [1, 2, 3]
 
 
-def get_chunks(c: Conf) -> Iterator[Chunk]:
+async def test_call_async(Executor, c):
+    print("Test call() async")
 
-    chunk_len = c.limit // c.chunk_size
+    start = time()
+    workers = 1
 
-    return (
-        Chunk(cstart * chunk_len, cstart * chunk_len + chunk_len)
-        for cstart in range(0, c.chunk_size)
+    results = await aio.gather(
+        Executor(workers).call(get_values_async),
+        Executor(workers).call(get_values_async),
+        Executor(workers).call(get_values_sync),
+        Executor(workers).call(get_values_async),
     )
 
+    results = await aio.gather(
+        *Executor(workers).batch(
+            Call(get_values_async),
+            Call(get_values_async),
+            Call(get_values_sync),
+            Call(get_values_async),
+        )
+    )
+    print('Test Done')
+    print(results)
 
-async def test_call(
+    t_delta = time() - start
+
+    return len(list(chain.from_iterable(results))), t_delta
+
+
+async def test_call_args(
     Executor: ExecutorType,
     c: Conf,
 ) -> Tuple[int, float]:
 
-    print("Test Call")
+    print("Test call() with *args")
 
     start = time()
 
     results = await aio.gather(
-        *(
-            Executor(c.workers).call(
-                findmatches,
-                chunk.start,
-                chunk.end,
-                c.num_to_find,
-            ) for chunk in get_chunks(c)
-        )
+        *[Executor(c.workers).call(get_values_sync) for i in range(100)]
+    )
+
+    t_delta = time() - start
+
+    return len(list(chain.from_iterable(results))), t_delta
+
+
+async def test_call_args_list(
+    Executor: ExecutorType,
+    c: Conf,
+) -> Tuple[int, float]:
+
+    print("Test call() with list as arg")
+
+    start = time()
+
+    results = await aio.gather(
+        [Executor(c.workers).call(get_values_sync) for i in range(100)]
+    )
+
+    t_delta = time() - start
+
+    return len(list(chain.from_iterable(results))), t_delta
+
+
+async def test_call_args_generator(
+    Executor: ExecutorType,
+    c: Conf,
+) -> Tuple[int, float]:
+
+    print("Test call() with generator as arg")
+
+    start = time()
+
+    results = await aio.gather(
+        *(Executor(c.workers).call(get_values_sync) for i in range(100))
     )
 
     t_delta = time() - start
@@ -77,10 +122,7 @@ async def test_batch(
     n = c.workers
 
     results = await aio.gather(
-        *Executor(n).batch(
-            Call(findmatches, chunk[0], chunk[1], c.num_to_find)
-            for chunk in get_chunks(c)
-        )
+        *Executor(n).batch(Call(get_values_sync) for i in range(100))
     )
 
     t_delta = time() - start
@@ -102,10 +144,7 @@ async def test_pool_call(
     with Executor(n) as pool:
 
         results = await aio.gather(
-            *(
-                pool.call(findmatches, chunk[0], chunk[1], c.num_to_find)
-                for chunk in get_chunks(c)
-            )
+            *(pool.call(get_values_sync) for i in range(100))
         )
 
     t_delta = time() - start
@@ -128,8 +167,7 @@ async def test_pool_batch(
 
         results = await aio.gather(
             *pool.batch(
-                Call(findmatches, chunk[0], chunk[1], c.num_to_find)
-                for chunk in get_chunks(c)
+                *[Call(get_values_sync) for i in range(100)],
             )
         )
 
@@ -144,7 +182,7 @@ def run() -> None:
         workers=8,
         num_to_find="5",
         chunk_size=200,
-        limit=10000000,
+        limit=10000,
     )
 
     print(f'Run Tests: limit={conf.limit}, workers={conf.workers}')
@@ -152,7 +190,10 @@ def run() -> None:
     loop = aio.get_event_loop()
 
     results = [
-        loop.run_until_complete(test_call(Procs, conf)),
+        loop.run_until_complete(test_call_async(Procs, conf)),
+        loop.run_until_complete(test_call_args(Procs, conf)),
+        # loop.run_until_complete(test_call_args_list(Procs, conf)),
+        loop.run_until_complete(test_call_args_generator(Procs, conf)),
         loop.run_until_complete(test_batch(Procs, conf)),
         loop.run_until_complete(test_pool_call(Procs, conf)),
         loop.run_until_complete(test_pool_batch(Procs, conf)),
@@ -164,7 +205,9 @@ def run() -> None:
         print(f"found {result[0]} in {result[1]} sec")
 
     results = [
-        loop.run_until_complete(test_call(Threads, conf)),
+        loop.run_until_complete(test_call_args(Threads, conf)),
+        # loop.run_until_complete(test_call_args_list(Threads, conf)),
+        loop.run_until_complete(test_call_args_generator(Threads, conf)),
         loop.run_until_complete(test_batch(Threads, conf)),
         loop.run_until_complete(test_pool_call(Threads, conf)),
         loop.run_until_complete(test_pool_batch(Threads, conf)),

@@ -6,7 +6,7 @@ Aioexec is a simple, intuitive interface around the `concurrent.futures` package
 
 ## Requirements
 
-aioexec requires Python `>= 3.6`
+aioexec requires Python `>= 3.7`
 
 ## Install
 
