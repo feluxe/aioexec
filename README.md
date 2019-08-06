@@ -104,6 +104,16 @@ foo = await Threads(1, my_loop).call(my_func, foo='baz')
 foo = await Procs(1, my_loop).call(my_func, foo='baz')
 ```
 
+You can also pass async functions to an executor:
+
+```python
+async def my_async_func(foo):
+    return await stuff(foo)
+
+
+foo = await Procs(1, my_loop).call(my_async_func, foo='baz')
+```
+
 ## Development / Testing
 
 Clone the repo and install dev packages:
