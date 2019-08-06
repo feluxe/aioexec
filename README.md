@@ -43,6 +43,21 @@ from aioexec import Procs
 foo = await Procs(1).call(my_func, foo='baz')
 ```
 
+You can pass both `sync` and `async` functions to an executor:
+
+```python
+
+def my_sync_func(foo):
+    return stuff(foo)
+
+async def my_async_func(foo):
+    return await stuff(foo)
+
+
+foo = await Procs(1).call(my_sync_func, foo='baz')
+foo = await Procs(1).call(my_async_func, foo='baz')
+```
+
 You can call a `batch` of functions in the same executor like this:
 
 ```python
@@ -102,16 +117,6 @@ If necessary, you can pass an event `loop` to the executors like this:
 ```python
 foo = await Threads(1, my_loop).call(my_func, foo='baz')
 foo = await Procs(1, my_loop).call(my_func, foo='baz')
-```
-
-You can also pass async functions to an executor:
-
-```python
-async def my_async_func(foo):
-    return await stuff(foo)
-
-
-foo = await Procs(1, my_loop).call(my_async_func, foo='baz')
 ```
 
 ## Development / Testing
