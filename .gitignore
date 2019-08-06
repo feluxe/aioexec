@@ -21,3 +21,4 @@ aioexec.egg-info/
 .swp
 
 
+.mypy_cache/
