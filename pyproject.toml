@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "aioexec"
+version = "0.5.0"
+description = ""
+authors = ["feluxe <felix@meyerwolters.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
