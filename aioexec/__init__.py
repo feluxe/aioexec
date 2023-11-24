@@ -11,7 +11,6 @@ import asyncio
 
 
 class Call:
-
     def __init__(self, fn: Callable, *args, **kwargs):
         self.fn = fn
         self.args = args
@@ -30,17 +29,13 @@ def _call_async(fn, args, kwargs):
 
 def _call(fn, args, kwargs, loop, pool):
     if asyncio.iscoroutinefunction(fn):
-        return loop.run_in_executor(
-            pool, partial(_call_async, fn, args, kwargs)
-        )
+        return loop.run_in_executor(pool, partial(_call_async, fn, args, kwargs))
     else:
         return loop.run_in_executor(pool, partial(fn, *args, **kwargs))
 
 
 def _batch_get_calls(raw_calls):
-
     for call in raw_calls:
-
         if isinstance(call, Call):
             yield call
 
@@ -50,7 +45,6 @@ def _batch_get_calls(raw_calls):
 
 
 class ConcurrentBase:
-
     def __init__(
         self,
         Executor=None,
@@ -71,7 +65,6 @@ class ConcurrentBase:
         return False
 
     def call(self, fn: Callable, *args, **kwargs) -> Awaitable[Any]:
-
         if not self.loop:
             self.loop = asyncio.get_event_loop()
 
@@ -85,12 +78,10 @@ class ConcurrentBase:
         self,
         *calls: Union[Call, Iterator[Call]],
     ) -> Iterator[Awaitable[Any]]:
-
         if not self.loop:
             self.loop = asyncio.get_event_loop()
 
         if not self.pool:
-
             with self.Executor(self.n) as pool:
                 for c in _batch_get_calls(calls):
                     yield _call(c.fn, c.args, c.kwargs, self.loop, pool)
@@ -101,7 +92,6 @@ class ConcurrentBase:
 
 
 class Threads(ConcurrentBase):
-
     def __init__(
         self,
         n: Optional[int] = None,
@@ -111,7 +101,6 @@ class Threads(ConcurrentBase):
 
 
 class Procs(ConcurrentBase):
-
     def __init__(
         self,
         n: Optional[int] = None,
@@ -120,5 +109,5 @@ class Procs(ConcurrentBase):
         ConcurrentBase.__init__(self, ProcessPoolExecutor, n, loop)
 
 
-class Coros():
+class Coros:
     pass
