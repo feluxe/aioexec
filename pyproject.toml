@@ -1,12 +1,16 @@
 [tool.poetry]
 name = "aioexec"
 version = "0.5.0"
-description = ""
+description = "asyncio executors, clean and simple. "
+keywords = ["asyncio", "executors"]
 authors = ["feluxe <felix@meyerwolters.de>"]
+maintainers = ["feluxe <felix@meyerwolters.de>"]
+repository = "https://github.com/feluxe/sty"
 readme = "README.md"
+license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 
 
 [build-system]
